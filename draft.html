@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ALEX SMART AI 26.0 - 20 UNITS FULL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --p: #0d47a1; --s: #1976d2; --orange: #ff6d00; --bg: #f8fbff; }
+        body { font-family: 'Lexend', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 1200px; background: white; border-radius: 40px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); border: 10px solid #333; overflow: hidden; }
+        .header { background: var(--p); color: white; padding: 25px; text-align: center; border-bottom: 6px solid #ffd700; }
+        .setup { display: grid; grid-template-columns: 1fr 1fr 1.5fr 1.5fr; gap: 10px; padding: 20px; background: #e3f2fd; }
+        input, select { padding: 15px; border-radius: 12px; border: 3px solid var(--s); font-size: 18px; font-weight: bold; }
+        .screen { min-height: 450px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+        .alex-say { font-size: 50px; color: var(--p); font-weight: 900; line-height: 1.2; margin-bottom: 30px; }
+        .user-say { font-size: 32px; color: #555; background: #fff; padding: 15px 35px; border-radius: 50px; border: 4px dashed var(--s); }
+        .orange-box { display: none; background: #fff3e0; border: 5px solid var(--orange); border-radius: 20px; padding: 20px; margin: 15px; cursor: pointer; }
+        .orange-box p { font-size: 40px; margin: 5px 0; font-weight: 900; color: #bf360c; }
+        .controls { padding: 30px; text-align: center; }
+        .mic-btn { width: 350px; height: 90px; border: none; border-radius: 45px; background: var(--p); color: white; font-size: 30px; font-weight: bold; cursor: pointer; }
+        .mic-btn.active { background: #d32f2f; animation: pulse 1s infinite; }
+        .cert { display: none; padding: 50px; border: 25px double #ffd700; margin: 20px; text-align: center; background: white; }
+        .cert h2 { font-family: 'Dancing Script'; font-size: 80px; color: var(--p); }
+        .sig-row { display: flex; justify-content: space-around; margin-top: 60px; font-size: 22px; font-weight: bold; border-top: 2px dashed #ccc; padding-top: 25px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(0.96); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>ALEX SMART AI 26.0 🚀</h1></div>
+    <div class="setup">
+        <input id="inName" placeholder="Student Name...">
+        <input id="inClass" placeholder="Class...">
+        <select id="mode" onchange="resetApp()">
+            <option value="alex_ask">Alex Asks (Alex hỏi)</option>
+            <option value="stu_ask">Student Asks (Alex trả lời)</option>
+        </select>
+        <select id="unit" onchange="resetApp()"></select>
+    </div>
+    <div class="screen">
+        <div id="stars" style="font-size: 70px; display: none;">⭐⭐⭐⭐⭐</div>
+        <div class="alex-say" id="alexSay">Hello! I'm Alex.</div>
+        <div class="user-say" id="userSay">Click Start to talk!</div>
+    </div>
+    <div id="orange" class="orange-box" onclick="playModel()">
+        <b style="font-size: 20px; color: var(--orange);">⚠️ REPEAT AFTER ALEX:</b>
+        <p id="modelTxt"></p>
+    </div>
+    <div class="controls"><button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙 START SPEAKING</button></div>
+    <div class="cert" id="cert">
+        <div style="font-size: 100px;">🥇</div>
+        <h2>CERTIFICATE</h2>
+        <p style="font-size: 30px;">Proudly presented to</p>
+        <h2 id="outName" style="color: #c62828;"></h2>
+        <p id="outUnit" style="font-size: 35px; font-weight: bold;"></p>
+        <p style="font-size: 28px; color: #2e7d32; font-style: italic; margin-top: 30px;">
+            "Please talk to Alex every day to speak English better!"
+        </p>
+        <div class="sig-row"><div>Mrs. Tran Thi Kim Yen</div><div>Mrs. Pham Thi Ngoc Bich</div></div>
+    </div>
+</div>
+
+<script>
+const data = {
+    1: { n: "All about me!", qa: [
+        {q: "Can you tell me about yourself?", a: "My name’s Alex. I’m ten years old. I’m in class 5/1.", k: ["yourself", "me", "name", "old"]},
+        {q: "What’s your favourite colour?", a: "It’s blue.", k: ["colour", "color"]},
+        {q: "What’s your favourite animal?", a: "It’s a dog.", k: ["animal"]},
+        {q: "What’s your favourite food?", a: "It’s pizza.", k: ["food"]},
+        {q: "What’s your favourite sport?", a: "It’s football.", k: ["sport"]}
+    ]},
+    2: { n: "Our homes", qa: [
+        {q: "Do you live in this house?", a: "Yes, I do.", k: ["house"]},
+        {q: "Do you live in this flat?", a: "No, I don’t.", k: ["flat"]},
+        {q: "Do you live in this building?", a: "No, I don’t.", k: ["building"]},
+        {q: "Do you live in this tower?", a: "No, I don’t.", k: ["tower"]},
+        {q: "What's your address?", a: "It's 65 Le Loi Street.", k: ["address"]}
+    ]},
+    3: { n: "My foreign friends", qa: [
+        {q: "Do you have any friends?", a: "Yes, I do.", k: ["friends"]},
+        {q: "What nationality is he?", a: "He’s Vietnamese.", k: ["nationality", "he"]},
+        {q: "What’s he like?", a: "He’s friendly and helpful.", k: ["like", "he"]}
+    ]},
+    4: { n: "Our free-time activities", qa: [
+        {q: "What do you like doing in your free time?", a: "I like riding my bike and playing the violin.", k: ["free time", "doing"]},
+        {q: "What do you do at the weekend?", a: "I usually read books and play table tennis.", k: ["weekend"]}
+    ]},
+    5: { n: "My future job", qa: [
+        {q: "What would you like to be in the future?", a: "I’d like to be a teacher.", k: ["future", "be"]},
+        {q: "Why would you like to be a teacher?", a: "Because I’d like to teach children.", k: ["why", "teacher"]}
+    ]},
+    6: { n: "Our school rooms", qa: [
+        {q: "Where’s the art room?", a: "It’s on the second floor.", k: ["where", "art room"]},
+        {q: "Could you tell me the way to the art room, please?", a: "Go upstairs, go past the library and turn right.", k: ["way", "art room"]}
+    ]},
+    7: { n: "Our favourite school activities", qa: [
+        {q: "What school activity does he like?", a: "He likes reading books.", k: ["activity", "like"]},
+        {q: "Why does he like reading books?", a: "Because he thinks it’s interesting.", k: ["why", "reading"]}
+    ]},
+    8: { n: "In our classroom", qa: [
+        {q: "Where are the crayons?", a: "They are on the table.", k: ["crayons"]},
+        {q: "Whose pen is this?", a: "It’s Huong’s.", k: ["whose"]}
+    ]},
+    9: { n: "Our outdoor activities", qa: [
+        {q: "Were you at the campsite last week?", a: "Yes, we were.", k: ["campsite"]},
+        {q: "What did you do yesterday?", a: "We listened to music and danced around the campfire.", k: ["yesterday", "did"]}
+    ]},
+    10: { n: "Our school trip", qa: [
+        {q: "Did they go to Ba Na Hills?", a: "Yes, they did.", k: ["ba na hills"]},
+        {q: "What did they do there?", a: "They visited the old buildings and played games.", k: ["do there"]}
+    ]},
+    11: { n: "Family time", qa: [
+        {q: "Did you swim?", a: "Yes, I did. I swam with my mother.", k: ["swim"]},
+        {q: "What did your family do in Ha Long Bay?", a: "We took a boat trip around the bay.", k: ["ha long bay"]}
+    ]},
+    12: { n: "Our Tet holiday", qa: [
+        {q: "Will you make banh chung for Tet?", a: "Yes, I will.", k: ["banh chung"]},
+        {q: "Where will you go at Tet?", a: "I’ll go to my grandparents’ house.", k: ["where", "tet"]}
+    ]},
+    13: { n: "Our special days", qa: [
+        {q: "What will you do on Children’s Day?", a: "We’ll dance.", k: ["children"]},
+        {q: "What food will you have at the party?", a: "We’ll have pizza and burgers.", k: ["food", "party"]}
+    ]},
+    14: { n: "Staying healthy", qa: [
+        {q: "How does he stay healthy?", a: "He does morning exercise and eats healthy food.", k: ["healthy"]},
+        {q: "How often does he play sports?", a: "Every day.", k: ["often", "sports"]}
+    ]},
+    15: { n: "Our health", qa: [
+        {q: "What’s the matter?", a: "I have a headache.", k: ["matter"]},
+        {q: "What should you do?", a: "I should have a rest.", k: ["should"]}
+    ]},
+    16: { n: "Seasons and the weather", qa: [
+        {q: "How’s the weather in Ha Noi in spring?", a: "It’s warm.", k: ["spring", "weather"]},
+        {q: "What do you usually wear in spring?", a: "I wear a blouse.", k: ["wear", "spring"]},
+        {q: "How’s the weather in Ha Noi in summer?", a: "It’s hot.", k: ["summer", "weather"]},
+        {q: "What do you usually wear in summer?", a: "I wear a T-shirt.", k: ["wear", "summer"]},
+        {q: "How’s the weather in Ha Noi in winter?", a: "It’s cold.", k: ["winter", "weather"]},
+        {q: "What do you usually wear in winter?", a: "I wear a coat and a scarf.", k: ["wear", "winter"]}
+    ]},
+    17: { n: "Stories for children", qa: [
+        {q: "Who are the main characters in the story?", a: "They’re the fox and the crow.", k: ["characters"]},
+        {q: "How did she sing?", a: "She sang beautifully.", k: ["sing"]}
+    ]},
+    18: { n: "Means of transport", qa: [
+        {q: "Where do you want to visit?", a: "I want to visit Dragon Bridge.", k: ["visit"]},
+        {q: "How can I get there?", a: "You can get there by bicycle.", k: ["get there", "how"]}
+    ]},
+    19: { n: "Places of interest", qa: [
+        {q: "What do you think of Hoi An Old Town?", a: "I think it’s exciting.", k: ["think", "hoi an"]},
+        {q: "How far is it from Da Nang to Hoi An?", a: "It’s about 29 kilometres.", k: ["far"]}
+    ]},
+    20: { n: "Our summer holidays", qa: [
+        {q: "Where are you going to visit this summer?", a: "I’m going to visit Phu Quoc Island.", k: ["visit", "summer"]},
+        {q: "What are you going to do?", a: "I’m going to go camping and practise swimming.", k: ["do", "going to"]}
+    ]}
+};
+
+const uSel = document.getElementById('unit');
+Object.keys(data).forEach(k => uSel.innerHTML += <option value="${k}">Unit ${k}: ${data[k].n}</option>);
+
+let rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+rec.lang = 'en-US';
+let qIdx = 0, isRec = false;
+
+function resetApp() {
+    qIdx = 0;
+    document.getElementById('cert').style.display = 'none';
+    document.getElementById('orange').style.display = 'none';
+    if(document.getElementById('mode').value === 'alex_ask') updateAlex(data[uSel.value].qa[0].q);
+    else updateAlex("I'm Alex! Ask me about " + data[uSel.value].n);
+}
+
+function toggleMic() {
+    if(!isRec) { rec.start(); micBtn.classList.add('active'); isRec = true; }
+    else { rec.stop(); micBtn.classList.remove('active'); isRec = false; }
+}
+
+rec.onresult = (e) => {
+    let said = e.results[0][0].transcript.toLowerCase();
+    document.getElementById('userSay').innerText = You: "${said}";
+    toggleMic();
+    if(document.getElementById('mode').value === 'alex_ask') handleAlexAsk(said);
+    else handleStuAsk(said);
+};
+
+function handleAlexAsk(said) {
+    const item = data[uSel.value].qa[qIdx];
+    // Chấp nhận câu trả lời tương tự qua từ khóa
+    let isCorrect = item.k.some(key => said.includes(key)) || said.length > 3;
+
+    if(!isCorrect) {
+        document.getElementById('orange').style.display = 'block';
+        document.getElementById('modelTxt').innerText = item.a;
+    } else {
+        document.getElementById('orange').style.display = 'none';
+        showStars();
+    }
+    setTimeout(() => {
+        qIdx++;
+        if(data[uSel.value].qa[qIdx]) updateAlex(data[uSel.value].qa[qIdx].q);
+        else { updateAlex("You are brilliant!"); showCert(); }
+    }, 4500);
+}
+
+function handleStuAsk(said) {
+    let reply = "I'm not sure. Can you ask again about " + data[uSel.value].n + "?";
+    
+    // Tìm câu trả lời dựa trên từ khóa trong câu hỏi học sinh
+    data[uSel.value].qa.forEach(item => {
+        if(item.k.some(key => said.includes(key))) reply = item.a;
+    });
+
+    if(said.includes("name")) reply = "My name is Alex. I'm ten years old.";
+    if(said.includes("class")) reply = "I'm in class 5/1.";
+
+    updateAlex(reply);
+    showStars();
+    if(qIdx++ > 2) showCert(); // Sau vài câu hỏi sẽ tặng giấy khen
+}
+
+function updateAlex(t) { document.getElementById('alexSay').innerText = t; speak(t); }
+function speak(t) { window.speechSynthesis.cancel(); let m = new SpeechSynthesisUtterance(t); m.lang = 'en-GB'; m.rate = 0.85; window.speechSynthesis.speak(m); }
+function playModel() { speak(document.getElementById('modelTxt').innerText); }
+function showStars() {
+    let s = document.getElementById('stars');
+    s.style.display = 'block';
+    setTimeout(() => s.style.display = 'none', 1500);
+}
+function showCert() {
+    document.getElementById('cert').style.display = 'block';
+    document.getElementById('outName').innerText = document.getElementById('inName').value || "Super Student";
+    document.getElementById('outUnit').innerText = "Mastered " + data[uSel.value].n;
+    document.getElementById('cert').scrollIntoView({behavior:'smooth'});
+}
+window.onload = resetApp;
+</script>
+</body>
+</html>
